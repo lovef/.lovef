@@ -2,5 +2,4 @@
 
 dir=$( dirname "${BASH_SOURCE[0]}" )
 
-bats ${dir}/test_helper
-${dir}/../windows/test/run
+bats ${dir}
