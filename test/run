@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+dir=$( dirname "${BASH_SOURCE[0]}" )
+
+bats ${dir}/test_helper
