@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+dir=$( dirname "${BASH_SOURCE[0]}" )
+fullpath="$( cd $dir ; pwd -P )"
+
 export PS1_WITH_GIT='\[\033]0;$TITLEPREFIX:${PWD//[^[:ascii:]]/?}\007\]\n\[\033[32m\]\A \u@\h \[\033[33m\]\w\[\033[36m\]`__git_ps1 " --> %s"`\[\033[0m\]\n$ '
 export PS1_WITHOUT_GIT='\[\033]0;$TITLEPREFIX:${PWD//[^[:ascii:]]/?}\007\]\n\[\033[32m\]\A \u@\h \[\033[33m\]\w\[\033[0m\]\n$ '
 export GIT_PS1_SHOWDIRTYSTATE=1
@@ -29,3 +32,5 @@ function pathsToWin {
     done
     echo $parameters
 }
+
+command -v powershell >/dev/null 2>&1 && alias say='powershell -File "$(cygpath -w "${fullpath}/speach.ps1")"'
