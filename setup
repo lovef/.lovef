@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+dir=$( dirname "${BASH_SOURCE[0]}" )
+fullpath="$( cd $dir ; pwd -P )"
+echo "To setup include this in ~/.bash_profile"
+echo ""
+echo "source ${fullpath}/.bash_profile"
