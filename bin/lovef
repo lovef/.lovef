@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+lovefDir=$( cd $(dirname "${BASH_SOURCE[0]}")/.. ; pwd )
+
+function check-updates {
+    prevDir=$PWD
+    cd $lovefDir
+    echo --- Updates ---
+    git fetch origin master --quiet
+    git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' \
+        --abbrev-commit --date=relative \
+        HEAD..origin/master
+    cd $prevDir
+}
+
+function usage {
+    echo "usage: lovef [-h] [--check-updates]"
+}
+
+function help {
+    usage
+    echo "
+Utility for https://github.com/lovef/.lovef
+
+To setup include this in ~/.bash_profile
+
+    source ${lovefDir}/.bash_profile
+
+Options:
+
+    -h, --help       Show this help text
+    --check-updates  List available updates"
+}
+
+total_argc=$#
+while test $# != 0
+do
+	case "$1" in
+    -h|--help)
+        help;;
+	--check-updates)
+        check-updates;;
+	--)
+		shift
+		break
+		;;
+	esac
+	shift
+done
