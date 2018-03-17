@@ -19,3 +19,15 @@ case "$(uname -s)" in
         ;;
     *);;
 esac
+
+# Gradle wrapper wrapper
+function gw {
+    command -v ./gradlew >/dev/null 2>&1 || { echo "Cannot find ./gradlew"; return; }
+    if [[ $# == 2 && ($1 == "-v" || $1 == "--version") ]]; then
+        echo "Let me update that wrapper for you ..."
+        ./gradlew wrapper --gradle-version $2
+        command -v dos2unix >/dev/null 2>&1 && dos2unix gradle/wrapper/gradle-wrapper.properties
+    else
+        ./gradlew $*
+    fi
+}
