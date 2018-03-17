@@ -12,7 +12,9 @@ alias path-pretty='echo $PATH | tr ":" "\n"'
 # https://stackoverflow.com/a/3466183/1020871
 case "$(uname -s)" in
     Linux*);;
-    Darwin*);;
+    Darwin*)
+        source ${dir}/mac/.bash_profile
+        ;;
     CYGWIN*);;
     MINGW*)
         source ${dir}/windows/.bash_profile
