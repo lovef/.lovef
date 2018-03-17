@@ -2,23 +2,23 @@
 
 lovefDir=$( cd $(dirname "${BASH_SOURCE[0]}")/.. ; pwd )
 
-function check-updates {
+function updates {
     prevDir=$PWD
     cd $lovefDir
-    echo --- Updates ---
     git fetch origin master --quiet
     git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' \
         --abbrev-commit --date=relative \
         HEAD..origin/master
 
-    echo "To update:
+    echo "
+To update:
 
     git -C $lovefDir checkout origin/master"
     cd $prevDir
 }
 
 function usage {
-    echo "usage: lovef [-h] [--check-updates]"
+    echo "usage: lovef [-h] [--updates]"
 }
 
 function help {
@@ -33,7 +33,7 @@ To setup include this in ~/.bash_profile
 Options:
 
     -h, --help       Show this help text
-    --check-updates  List available updates"
+    --updates        List available updates"
 }
 
 total_argc=$#
@@ -44,8 +44,8 @@ do
         help
         exit 0
         ;;
-	--check-updates)
-        check-updates
+	--updates)
+        updates
         exit 0
         ;;
 	--)
