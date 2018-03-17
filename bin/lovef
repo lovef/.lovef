@@ -10,6 +10,10 @@ function check-updates {
     git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' \
         --abbrev-commit --date=relative \
         HEAD..origin/master
+
+    echo "To update:
+
+    git -C $lovefDir checkout origin/master"
     cd $prevDir
 }
 
@@ -37,9 +41,13 @@ while test $# != 0
 do
 	case "$1" in
     -h|--help)
-        help;;
+        help
+        exit 0
+        ;;
 	--check-updates)
-        check-updates;;
+        check-updates
+        exit 0
+        ;;
 	--)
 		shift
 		break
@@ -47,3 +55,5 @@ do
 	esac
 	shift
 done
+
+usage
