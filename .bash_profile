@@ -25,9 +25,11 @@ esac
 # Gradle wrapper wrapper
 function gw {
     command -v ./gradlew >/dev/null 2>&1 || { echo "Cannot find ./gradlew"; return; }
-    if [[ $# == 2 && ($1 == "-v" || $1 == "--version") ]]; then
+    if [[ $# -gt 1 && ($1 == "-v" || $1 == "--version") ]]; then
+        shift
         echo "Let me update that wrapper for you ..."
-        ./gradlew wrapper --gradle-version $2
+        echo "include this for complete distrubution: --distribution-type all"
+        ./gradlew wrapper --gradle-version $*
         command -v dos2unix >/dev/null 2>&1 && dos2unix gradle/wrapper/gradle-wrapper.properties
     else
         ./gradlew $*
