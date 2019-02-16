@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+function usage {
+    echo "usage: gw-setup [-h] [--kts]"
+}
+
+function help {
+    usage
+    echo "
+Utility to setup gradle build files.
+
+Options:
+
+    -h, --help       Show this help text
+    --kts            Use kotlin"
+}
+
+total_argc=$#
+while test $# != 0
+do
+	case "$1" in
+    -h|--help)
+        help
+        exit 0
+        ;;
+	--kts)
+        kts=true
+        ;;
+	--)
+		shift
+		break
+		;;
+	esac
+	shift
+done
+
+if [[ -f settings.gradle.kts || -f build.gradle.kts ]]; then
+    kts=true
+fi
+
+test $kts && echo use kotlin || echo use groovy
+
+function createFile {
+    echo "create $1"
+    touch $1
+}
+
+if [[ ! -f build.gradle && ! -f build.gradle.kts ]]; then
+    test $kts && createFile build.gradle.kts || createFile build.gradle
+fi
+
+if [[ ! -f settings.gradle && ! -f settings.gradle.kts ]]; then
+    test $kts && createFile settings.gradle.kts || createFile settings.gradle
+fi
+
+if [[ ! -f gradlew ]]; then
+    echo setup wrapper...
+    gradle wrapper
+    echo "!gradle-wrapper.jar" > gradle/wrapper/.gitignore
+fi
+
+if [[ ! -f .gitignore ]]; then
+    createFile .gitignore
+fi
+
+function gitignore {
+    while test $# != 0
+    do
+        grep -qxF "$1" .gitignore
+        if [ $? -ne 0 ]; then
+            echo gitignore "$1"
+            echo "$1" >> .gitignore
+        fi
+        shift
+    done
+}
+
+gitignore .gradle /build/ .gradletasknamecache

@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-command -v ./gradlew >/dev/null 2>&1 || { echo "Cannot find ./gradlew"; exit 1; }
+command -v ./gradlew >/dev/null 2>&1 || {
+    echo "Cannot find ./gradlew"
+    echo "use this command to setup:"
+    echo "    gw-setup -h"
+    exit 1
+}
 if [[ $# == 2 && ($1 == "-v" || $1 == "--version") ]]; then
     echo "Let me update that wrapper for you ..."
     ./gradlew wrapper --gradle-version $2
