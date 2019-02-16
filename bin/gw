@@ -9,12 +9,20 @@ command -v ./gradlew >/dev/null 2>&1 || {
 if [[ $1 == "-v" || $1 == "--version" ]]; then
     if [[ $# == 2 ]]; then
         echo "Let me update that wrapper for you ..."
-        ./gradlew wrapper --gradle-version $2
+        version=$2
+        if [[ $version == "--latest" ]]; then
+            version=$(curl https://gradle.org/releases/ -s | \
+                egrep -o -m1 'services.gradle.org/distributions/gradle-[0-9.]+-bin.zip' | \
+                sed -E s/.+gradle-// | sed s/-bin.zip//)
+            echo resolved version $version
+        fi
+        ./gradlew wrapper --gradle-version $version
         command -v dos2unix >/dev/null 2>&1 && dos2unix gradle/wrapper/gradle-wrapper.properties
     else
         ./gradlew $*
         echo "update with"
         echo "  gw -v \$(version)"
+        echo "  gw -v --latest # Will atempt to resolve latest version from https://gradle.org/releases/"
         echo
         echo "consult https://gradle.org/releases/ for list of available releases"
     fi
