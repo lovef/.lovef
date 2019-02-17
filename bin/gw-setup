@@ -75,4 +75,11 @@ function gitignore {
     done
 }
 
-gitignore .gradle /build/ .gradletasknamecache
+gitignore \
+    .gradle \
+    build/ \
+    .gradletasknamecache \
+    out/ \
+    .idea/ \
+    *.iml \
+    out/
