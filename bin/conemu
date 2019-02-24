@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+
+command -v cygpath >/dev/null 2>&1 || {
+    echo "Cannot find cygpath"
+    exit 1
+}
+shexe="$(cygpath -wa /)/bin/sh.exe"
+command -v "$shexe" >/dev/null 2>&1 || {
+    echo "Cannot find $shexe"
+    exit 1
+}
+
+function usage {
+    echo "usage: conemu [-htwvH]"
+    echo "       conemu [-twvh]"
+    echo "       conemu [-twvh] [-n] [name]"
+}
+
+function help {
+    usage
+    echo "
+Utility for https://conemu.github.io/en/NewConsole.html
+
+Options:
+
+    -h, --help      Show this help text
+    -t, --tab       Start new tab
+    -w, --window    Start new window
+    -v              Split vertically
+    -H              Split horizontally
+    -s, --split     Split vertically or horizontally depending on window size
+    -n, --name      Set tab name"
+}
+
+args=$@
+expandedArgs=()
+for arg in $args; do
+    if [[ "$arg" =~ ^-[a-z]{2,}$ ]]; then
+        for (( i=1; i<${#arg}; i++ )); do
+            expandedArgs+=("-${arg:$i:1}")
+        done
+    else
+        expandedArgs+=("$arg")
+    fi
+done
+
+for (( i=0; i<${#expandedArgs[@]}; i++ )); do
+    arg=${expandedArgs[$i]}
+	case "$arg" in
+    -h|--help)
+        help
+        exit 0
+        ;;
+	-t|--tab)
+        tab=true
+        ;;
+	-w|--window)
+        window=true
+        ;;
+	-s|--split)
+        split=true
+        ;;
+	-v)
+        vertically=true
+        ;;
+	-H)
+        horizontally=true
+        ;;
+    -n|--name)
+        i=$((i + 1))
+        name="${expandedArgs[$i]}"
+        tabCommand=":t:$name"
+        ;;
+    *)
+        echo "unknown option: $arg"
+        usage
+        exit 1
+        ;;
+	esac
+done
+
+if [ "$tab" == true ] && [ "$window" == true ]; then
+    echo "Cannot use both tab and window"
+    usage
+    exit 1
+fi
+
+if [ "$tab" == true ]; then
+    command "$shexe" --login -i -new_console$tabCommand
+    exit 0
+fi
+
+if [ "$window" == true ]; then
+    echo "Don't know how to open new window :("
+    exit 0
+fi
+
+if [ "$split" == true ]; then
+    cols=$(tput cols)
+    lines=$(tput lines)
+    if(( cols < lines * 2 )); then
+        vertically=true
+    else
+        horizontally=true
+    fi
+fi
+
+if [ "$vertically" == true ]; then
+    command "$shexe" --login -i -new_console:sV$tabCommand
+    exit 0
+fi
+
+if [ "$horizontally" == true ]; then
+    command "$shexe" --login -i -new_console:sH$tabCommand
+    exit 0
+fi
+
+if [ ! -z "$name" ]; then
+    RenameTab.cmd "$name"
+fi
+
+usage
