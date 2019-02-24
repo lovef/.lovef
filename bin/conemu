@@ -29,12 +29,16 @@ Options:
     -v              Split vertically
     -H              Split horizontally
     -s, --split     Split vertically or horizontally depending on window size
-    -n, --name      Set tab name"
+    -n, --name      Set tab name
+    -c, --command   run command in the new tab"
 }
 
 args=$@
 expandedArgs=()
-for arg in $args; do
+
+while test $# != 0
+do
+    arg="$1"
     if [[ "$arg" =~ ^-[a-z]{2,}$ ]]; then
         for (( i=1; i<${#arg}; i++ )); do
             expandedArgs+=("-${arg:$i:1}")
@@ -42,6 +46,7 @@ for arg in $args; do
     else
         expandedArgs+=("$arg")
     fi
+	shift
 done
 
 for (( i=0; i<${#expandedArgs[@]}; i++ )); do
@@ -71,6 +76,10 @@ for (( i=0; i<${#expandedArgs[@]}; i++ )); do
         name="${expandedArgs[$i]}"
         tabCommand=":t:$name"
         ;;
+    -c|--command)
+        i=$((i + 1))
+        commandToExecute="${expandedArgs[$i]}"
+        ;;
     *)
         echo "unknown option: $arg"
         usage
@@ -86,7 +95,7 @@ if [ "$tab" == true ] && [ "$window" == true ]; then
 fi
 
 if [ "$tab" == true ]; then
-    command "$shexe" --login -i -new_console$tabCommand
+    command "$shexe" -new_console$tabCommand -c "bash --init-file <(echo '. ~/.bash_profile; $commandToExecute')"
     exit 0
 fi
 
@@ -106,12 +115,12 @@ if [ "$split" == true ]; then
 fi
 
 if [ "$vertically" == true ]; then
-    command "$shexe" --login -i -new_console:sV$tabCommand
+    command "$shexe" -new_console:sV$tabCommand -c "bash --init-file <(echo '. ~/.bash_profile; $commandToExecute')"
     exit 0
 fi
 
 if [ "$horizontally" == true ]; then
-    command "$shexe" --login -i -new_console:sH$tabCommand
+    command "$shexe" -new_console:sH$tabCommand -c "bash --init-file <(echo '. ~/.bash_profile; $commandToExecute')"
     exit 0
 fi
 
