@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+function usage {
+    echo "usage: lorem [<minLength>] [<grammer>]"
+}
+
+function help {
+    usage
+    echo "
+Placeholder text genertor. Can generate text with selected grammer.
+"
+}
+
+lovefDir=$( cd $(dirname "${BASH_SOURCE[0]}")/.. ; pwd )
+echo $lovefDir
+grammer=loremipsum
+
+expandedArgs=()
+while test $# != 0
+do
+    arg="$1"
+    if [[ "$arg" =~ ^-[a-z]{2,}$ ]]; then
+        for (( i=1; i<${#arg}; i++ )); do
+            expandedArgs+=("-${arg:$i:1}")
+        done
+    else
+        expandedArgs+=("$arg")
+    fi
+    shift
+done
+
+for (( i=0; i<${#expandedArgs[@]}; i++ )); do
+    arg=${expandedArgs[$i]}
+    case "$arg" in
+    -h|--help)
+        help
+        exit 0
+        ;;
+    *)
+        echo "unknown option: $arg"
+        usage
+        exit 1
+        ;;
+    esac
+done
+
+grammerFile="$lovefDir/grammer/$grammer"
+
+declare -A rules
+rule=""
+while read line; do
+    if [[ "$line" =~ ^\#.*$ ]] || [[ -z "$line" ]]; then
+        continue
+    fi
+    if [[ "$line" =~ ^([a-zA-Z]+):$ ]]; then
+        rule=${BASH_REMATCH[1]}
+        echo new rule: $rule
+        definitions=()
+        rules[$rule]=${definitions[@]}
+    else
+        definitions=rules[$rule]
+        definitions+=("$line")
+    fi
+done <"$grammerFile"
+
+for def in "${!rules[@]}"; do
+    definitions="${rules[$def]}"
+    echo "$def - ${definitions[@]}"
+done
