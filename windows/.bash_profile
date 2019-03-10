@@ -11,10 +11,11 @@ alias ps1_without_git='export PS1=$PS1_WITHOUT_GIT'
 ps1_without_git
 command -v __git_ps1 >/dev/null 2>&1 && ps1_with_git
 
+alias open='start'
+
 function explorer {
 	explorer.exe $(pathsToWin "$@")
 }
-alias open='explorer' # Consider using `start`
 
 function code {
     code.cmd $(pathsToWin "$@")
