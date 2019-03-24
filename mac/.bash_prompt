@@ -104,15 +104,15 @@ fi;
 if [[ "${SSH_TTY}" ]]; then
 	hostStyle="${bold}${red}";
 else
-	hostStyle="${reset}";
+	hostStyle="";
 fi;
 
 # Set the terminal title to the current working directory.
 PS1="\[\033]0;\w\007\]\n";
 PS1+="\[${userStyle}\]\A \u"; # time and username
-PS1+="\[${white}\]@";
+PS1+="@";
 PS1+="\[${hostStyle}\]\h"; # host
-PS1+="\[${white}\]:";
+PS1+="\[${white}\] ";
 PS1+="\[${reset}\]\w"; # working directory
 PS1+="\$(prompt_git \"\[${white}\] - \[${violet}\]\" \"\[${blue}\]\")"; # Git repository details
 PS1+="\n";
