@@ -35,3 +35,7 @@ function pathsToWin {
 }
 
 command -v powershell >/dev/null 2>&1 && alias say='powershell -File "$(cygpath -w "${fullpath}/speach.ps1")"'
+
+function title {
+    conemu -n "$*"
+}

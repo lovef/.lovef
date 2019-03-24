@@ -28,3 +28,7 @@ function pathsToWin {
 }
 
 command -v gitk.exe >/dev/null 2>&1 && alias gitk=gitk.exe
+
+function title {
+    conemu -n "$*"
+}
