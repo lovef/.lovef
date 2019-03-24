@@ -21,7 +21,7 @@ function pathsToWin {
         if [[ $var =~ ^- ]]; then
             parameters+="$var "
         else
-            parameters+="$(wslpath -m "$var") "
+            parameters+="$(wslpath -m $(realpath "$var")) "
         fi
     done
     echo $parameters
