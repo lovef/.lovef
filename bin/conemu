@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [[ "$(uname -s)" == Linux* ]]; then
+    wsl-conemu "$@"
+    exit 0
+fi
+
 command -v cygpath >/dev/null 2>&1 || {
     echo "Cannot find cygpath"
     exit 1

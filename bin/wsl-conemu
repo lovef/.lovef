@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+command -v wslpath >/dev/null 2>&1 || {
+    echo "Cannot find wslpath"
+    exit 1
+}
+
+function usage {
+    echo "usage: conemu [<options>]"
+}
+
+function help {
+    usage
+    echo "
+Utility for renaming conemu tab for WSL.
+
+Intended to be used for creating tabs when I figure out how to even: https://conemu.github.io/en/NewConsole.html
+
+Options:
+
+    -n, --name <name>       Set tab name"
+}
+
+expandedArgs=()
+while test $# != 0
+do
+    arg="$1"
+    if [[ "$arg" =~ ^-[a-z]{2,}$ ]]; then
+        for (( i=1; i<${#arg}; i++ )); do
+            expandedArgs+=("-${arg:$i:1}")
+        done
+    else
+        expandedArgs+=("$arg")
+    fi
+    shift
+done
+
+for (( i=0; i<${#expandedArgs[@]}; i++ )); do
+    arg=${expandedArgs[$i]}
+    case "$arg" in
+    -h|--help)
+        help
+        exit 0
+        ;;
+    -n|--name)
+        i=$((i + 1))
+        name="${expandedArgs[$i]}"
+        tabCommand=":t:$name"
+        ;;
+    *)
+        echo "unknown option: $arg"
+        usage
+        exit 1
+        ;;
+    esac
+done
+
+if [ ! -z "$name" ]; then
+    cmd.exe /c RenameTab.cmd "$name"
+    exit 0
+fi
+
+usage
