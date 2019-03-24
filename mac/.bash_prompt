@@ -108,7 +108,10 @@ else
 fi;
 
 # Set the terminal title to the current working directory.
-PS1="\[\033]0;\w\007\]\n";
+PS1="\n";
+if [ "$title_set" != true ]; then
+    PS1="\[\033]0;\w\007\]\n";
+fi
 PS1+="\[${userStyle}\]\A \u"; # time and username
 PS1+="@";
 PS1+="\[${hostStyle}\]\h"; # host
