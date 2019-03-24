@@ -30,5 +30,11 @@ function pathsToWin {
 command -v gitk.exe >/dev/null 2>&1 && alias gitk=gitk.exe
 
 function title {
-    conemu -n "$*"
+    if [ ! -z "$*" ]; then
+        title_set=true
+        echo -ne "\033]0;"$*"\007"
+    else
+        title_set=false
+    fi
+    source "$fullpath/../mac/.bash_prompt"
 }
