@@ -26,3 +26,5 @@ function pathsToWin {
     done
     echo $parameters
 }
+
+command -v gitk.exe >/dev/null 2>&1 && alias gitk=gitk.exe
