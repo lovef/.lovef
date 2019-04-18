@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+command -v ruby >/dev/null 2>&1 || {
+    echo "Cannot find ruby"
+    exit 1
+}
+
+function usage {
+    echo 'usage: echo '"'"'{"key":"value"}'"'"' | pretty-json'
+}
+
+function help {
+    usage
+    echo "
+Utility to prettyfy JSON using ruby
+
+Options:
+
+    -h, --help              Show this help text"
+}
+
+expandedArgs=()
+while test $# != 0
+do
+    arg="$1"
+    if [[ "$arg" =~ ^-[a-z]{2,}$ ]]; then
+        for (( i=1; i<${#arg}; i++ )); do
+            expandedArgs+=("-${arg:$i:1}")
+        done
+    else
+        expandedArgs+=("$arg")
+    fi
+    shift
+done
+
+for (( i=0; i<${#expandedArgs[@]}; i++ )); do
+    arg=${expandedArgs[$i]}
+    case "$arg" in
+    -h|--help)
+        help
+        exit 0
+        ;;
+    *)
+        echo "unknown option: $arg"
+        usage
+        exit 1
+        ;;
+    esac
+done
+
+read json
+# https://stackoverflow.com/a/1599617/1020871
+echo $json | ruby -r json -e 'jj JSON.parse gets'
