@@ -34,6 +34,8 @@ do
 	shift
 done
 
+lovefDir=$( cd $(dirname "${BASH_SOURCE[0]}")/.. ; pwd )
+
 if [[ -f settings.gradle.kts || -f build.gradle.kts ]]; then
     kts=true
 fi
@@ -42,21 +44,40 @@ test $kts && echo use kotlin || echo use groovy
 
 function createFile {
     echo "create $1"
-    touch $1
+    touch "$1"
+}
+
+function createDir {
+    if [[ ! -d $1 ]]; then
+        echo "make dir $1"
+        mkdir -p "$1"
+    fi
+}
+
+function includeExampleFile {
+    createDir $(dirname $1)
+    echo "create $1"
+    cp "$lovefDir/example/$1" "$1"
 }
 
 if [[ ! -f build.gradle && ! -f build.gradle.kts ]]; then
-    test $kts && createFile build.gradle.kts || createFile build.gradle
+    if [ "$kts" == true ]; then
+        includeExampleFile build.gradle.kts
+    else
+        includeExampleFile build.gradle
+    fi
 fi
 
 if [[ ! -f settings.gradle && ! -f settings.gradle.kts ]]; then
-    test $kts && createFile settings.gradle.kts || createFile settings.gradle
-fi
-
-if [[ ! -f gradlew ]]; then
-    echo setup wrapper...
-    gradle wrapper
-    echo "!gradle-wrapper.jar" > gradle/wrapper/.gitignore
+    if [ "$kts" == true ]; then
+        includeExampleFile settings.gradle.kts
+        includeExampleFile app/build.gradle.kts
+    else
+        includeExampleFile settings.gradle
+        includeExampleFile app/build.gradle
+    fi
+    createDir app/src/main/kotlin/se/lovef/
+    createDir app/src/test/kotlin/se/lovef/
 fi
 
 if [[ ! -f .gitignore ]]; then
@@ -83,3 +104,9 @@ gitignore \
     .idea/ \
     *.iml \
     out/
+
+if [[ ! -f gradlew ]]; then
+    echo setup wrapper...
+    gradle wrapper
+    echo "!gradle-wrapper.jar" > gradle/wrapper/.gitignore
+fi
