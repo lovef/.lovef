@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+command -v pandoc >/dev/null 2>&1 || {
+    echo "Cannot find pandoc"
+    echo "  see https://pandoc.org/installing.html"
+    exit 1
+}
+
+function usage {
+    echo "usage: to-html [-h] <file-path>"
+}
+
+function help {
+    usage
+    echo "
+Utility to convert a document (normally mark down) to a self contained
+HTML with pandoc.
+
+Options:
+
+    -h, --help       Show this help text"
+}
+
+
+expandedArgs=()
+while test $# != 0
+do
+    arg="$1"
+    if [[ "$arg" =~ ^-[a-z]{2,}$ ]]; then
+        for (( i=1; i<${#arg}; i++ )); do
+            expandedArgs+=("-${arg:$i:1}")
+        done
+    else
+        expandedArgs+=("$arg")
+    fi
+    shift
+done
+
+params=()
+for (( i=0; i<${#expandedArgs[@]}; i++ )); do
+    arg=${expandedArgs[$i]}
+    case "$arg" in
+    -h|--help)
+        help
+        exit 0
+        ;;
+    -*)
+        echo "unknown option: $arg"
+        usage
+        exit 1
+        ;;
+    *)
+        params+=("$arg")
+    esac
+done
+
+set -- "${params[@]}"
+
+file="$1"
+
+if [[ ! -f "$file" ]]; then
+    echo "Must provide a path to a file"
+    usage
+    exit 1
+fi
+
+fileName=$(basename "$file")
+title=${fileName%.*}
+output="$title.html"
+
+echo "Will write to $output"
+
+pandoc --self-contained --metadata pagetitle="$title" "$file" -o "$output"
