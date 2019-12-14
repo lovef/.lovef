@@ -1,0 +1,22 @@
+# none, visible or audible
+set bell-style none
+
+# Be more intelligent when autocompleting by also looking at the text after
+# the cursor. For example, when the current line is "cd ~/src/mozil", and
+# the cursor is on the "z", pressing Tab will not autocomplete it to "cd
+# ~/src/mozillail", but to "cd ~/src/mozilla". (This is supported by the
+# Readline used by Bash 4.)
+set skip-completed-text on
+
+"\e[1;5C": forward-word             # ctrl + right
+"\e[1;5D": backward-word            # ctrl + left
+
+"\033[1;6C": menu-complete          # ctrl + shift + right
+"\033[1;6D": menu-complete-backward # ctrl + shift + left
+
+"\e[A":history-search-backward      # arrow up
+"\e[B":history-search-forward       # arrow down
+
+"\C-h": backward-kill-word          # Ctrl-BackSpace
+"\e[3;5~": kill-word                # Ctrl-Delete
+"\e[3;6~": kill-line                # Ctrl-Shift-Delete
