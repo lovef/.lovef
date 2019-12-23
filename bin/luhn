@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+
+command -v pandoc >/dev/null 2>&1 || {
+    echo "Cannot find pandoc"
+    echo "  see https://pandoc.org/installing.html"
+    exit 1
+}
+
+function usage {
+    echo "usage: luhn [<options>] <number>..."
+}
+
+function help {
+    usage
+    echo "
+Utility to validate or calculate luhn value.
+See https://en.wikipedia.org/wiki/Luhn_algorithm
+
+Luhn algorithm implementation is found at https://ethertubes.com/bash-luhn/
+
+Examples:
+
+    $ luhn 123 125
+    invalid 123
+    valid   125
+
+    $ luhn -a 12 34
+    125
+    349
+
+    $ luhn -p10
+    0895562197
+
+    $ luhn -p5 12 34
+    12062
+    34280
+
+Options:
+
+    -h, --help                Show this help text
+    -a, --append              Append check digit to numbers
+    -p, --pad <paded length>  Pad input with random digits and luhn check digit"
+}
+
+
+expandedArgs=()
+while test $# != 0
+do
+    arg="$1"
+    if [[ "$arg" =~ ^-[a-z]{2,}$ ]]; then
+        for (( i=1; i<${#arg}; i++ )); do
+            expandedArgs+=("-${arg:$i:1}")
+        done
+    else
+        expandedArgs+=("$arg")
+    fi
+    shift
+done
+
+params=()
+for (( i=0; i<${#expandedArgs[@]}; i++ )); do
+    arg=${expandedArgs[$i]}
+    case "$arg" in
+    -h|--help)
+        help
+        exit 0
+        ;;
+    -a|--append)
+        append=true
+        ;;
+    -p*|--pad*)
+        if [[ "$arg" =~ ^-p(.+$) ]] || [[ "$arg" =~ ^--pad(.+$) ]]; then
+            pad="${BASH_REMATCH[1]}"
+        else
+            (( i++ ))
+            pad=${expandedArgs[$i]}
+        fi
+        if ! [[ "$pad" =~ ^[0-9]+$ ]]; then
+            echo "'$pad' is not a valid padding length, must be a number"
+            usage
+            exit 1
+        fi
+        ;;
+    -*)
+        echo "unknown option: $arg"
+        usage
+        exit 1
+        ;;
+    *)
+        params+=("$arg")
+    esac
+done
+
+set -- "${params[@]}"
+
+# Returns Luhn checksum for supplied sequence
+luhn_checksum() {
+    sequence="$1"
+    sequence="${sequence//[^0-9]}" # numbers only plz
+    checksum=0
+    table=(0 2 4 6 8 1 3 5 7 9)
+
+    # Quicker to work with even number of digits
+    # prepend a "0" to sequence if uneven
+    i=${#sequence}
+    if [ $(($i % 2)) -ne 0 ]; then
+        sequence="0$sequence"
+        ((++i))
+    fi
+
+    while [ $i -ne 0 ];
+    do
+        # sum up the individual digits, do extra stuff w/every other digit
+        checksum="$(($checksum + ${sequence:$((i - 1)):1}))" # Last digit
+        # for every other digit, double the value before adding the digit
+            # if the doubled value is over 9, subtract 9
+        checksum="$(($checksum + ${table[${sequence:$((i - 2)):1}]}))" # Second to last digit
+        i=$((i - 2))
+
+    done
+    checksum="$(($checksum % 10))" # mod 10 the sum to get single digit checksum
+    echo "$checksum"
+}
+
+luhn_checkdigit() {
+    check_digit=$(luhn_checksum "${1}0")
+    if [ $check_digit -ne 0 ]; then
+        check_digit=$((10 - $check_digit))
+    fi
+    echo "$check_digit"
+}
+
+# Tests if last digit is the correct Luhn check digit for the sequence
+# Returns true if valid, false if not
+luhn_test() {
+    if [ "$(luhn_checksum $1)" == "0" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function process {
+    if ! [[ "$1" =~ ^[0-9]*$ ]]; then
+        echo "'$1' is not a valid input, must be a number"
+        return 1
+    fi
+
+    if [[ -n "$pad" ]]; then
+        prefix=$1
+        length=${#prefix}
+        if ! [ "$length" -lt "$pad" ]; then
+            echo "Prefix $1 must be shorter then the padding $pad"
+            return 1
+        fi
+        missing=$(($pad - $length - 1))
+        randomPart=$(head /dev/urandom | LC_ALL=C tr -dc 0-9 | head -c $missing ; echo '')
+        number="$prefix$randomPart"
+        echo "$number$(luhn_checkdigit $number)"
+        return 0
+    fi
+
+    if [ "$append" == true ]; then
+        echo "$1$(luhn_checkdigit $1)"
+        return 0
+    fi
+
+    if [ ${#1} -lt 1 ]; then
+        usage
+        exit 1
+    fi
+
+    if luhn_test $1; then
+        echo "valid   $1"
+    else
+        echo "invalid $1"
+    fi
+}
+
+if [ $# -lt 1 ]; then
+    process ""
+    exit 0
+fi
+
+while test $# != 0
+do
+    process "$1"
+    shift
+done
