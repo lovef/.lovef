@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-command -v pandoc >/dev/null 2>&1 || {
-    echo "Cannot find pandoc"
-    echo "  see https://pandoc.org/installing.html"
-    exit 1
-}
-
 function usage {
     echo "usage: luhn [<options>] <number>..."
 }
