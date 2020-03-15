@@ -3,4 +3,8 @@
 import secrets
 import uuid
 
-print(str(uuid.UUID(bytes=secrets.token_bytes(16))))
+def randomUuid():
+    return uuid.UUID(bytes=secrets.token_bytes(16))
+
+if __name__ == '__main__':
+    print(str(randomUuid()))
