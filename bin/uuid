@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+
+import secrets
+import uuid
+
+print(str(uuid.UUID(bytes=secrets.token_bytes(16))))
