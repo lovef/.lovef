@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+
+import secrets
+
+chars = "23456789" + \
+    "abcdefghijkmnopqrstuvwxyz" + \
+    "ABCDEFGHJKLMNPQRSTUVWXYZ" +\
+    "_-+"
+charsLen = len(chars)
+
+def generate(length):
+    password = ""
+    for i in range(length):
+        password += chars[secrets.randbelow(charsLen)]
+    print(password)
+
+def main():
+    print(f'{16:16}{24:8}{32:8}{40:8}{48:8}{56:8}{64:8}')
+    generate(16)
+    generate(24)
+    generate(32)
+    generate(48)
+    generate(64)
+    print(f'{16:16}{24:8}{32:8}{40:8}{48:8}{56:8}{64:8}')
+
+
+if __name__ == '__main__':
+    main()
