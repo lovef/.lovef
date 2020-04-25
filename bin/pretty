@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+
+import json
+import sys
+import fileinput
+import argparse
+
+helpText = """Tries to prettyfy input
+
+currently supports JSON"""
+
+def parseArguments():
+    parser = argparse.ArgumentParser(description = helpText, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("input", nargs='?', help="Input to prettyfy")
+    parser.add_argument("-c", "--clipboard", help="Take input from clipboard",
+        action="store_true")
+    return parser.parse_args()
+
+def readFromClipboard():
+    import tkinter
+    return tkinter.Tk().clipboard_get()
+
+def readFromStdin():
+    text = ""
+    for line in fileinput.input():
+        text = text + line
+    return text
+
+if __name__ == '__main__':
+    args = parseArguments()
+
+    inputString = readFromClipboard() if args.clipboard \
+        else args.input if args.input \
+        else readFromStdin()
+
+    try:
+        parsed = json.loads(inputString, strict = False)
+        pretty = json.dumps(parsed, indent=4)
+        print(pretty)
+    except Exception as e:
+        print(e)
