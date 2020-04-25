@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 
 import json
+import xml.dom.minidom
+from xml.etree import ElementTree
 import sys
 import fileinput
 import argparse
 
-helpText = """Tries to prettyfy input
+helpText = """Tries to prettify input
 
-currently supports JSON"""
+currently supports JSON, XML"""
 
 def parseArguments():
     parser = argparse.ArgumentParser(description = helpText, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("input", nargs='?', help="Input to prettyfy")
+    parser.add_argument("input", nargs='?', help="Input to prettify")
     parser.add_argument("-c", "--clipboard", help="Take input from clipboard",
         action="store_true")
     return parser.parse_args()
@@ -26,6 +28,46 @@ def readFromStdin():
         text = text + line
     return text
 
+def prettify(inputString):
+    errors = ""
+    try:
+        prettifyJson(inputString)
+        return
+    except Exception as e:
+        errors = errors + "Failed to parse JSON " + str(e) + "\n"
+    try:
+        prettifyXml(inputString)
+        return
+    except Exception as e:
+        errors = errors + "Failed to parse XML " + str(e) + "\n"
+    print(errors, end = "")
+
+def prettifyJson(inputString):
+    parsed = json.loads(inputString, strict = False)
+    pretty = json.dumps(parsed, indent=4)
+    print(pretty)
+
+def prettifyXml(inputString):
+    root = ElementTree.fromstring(inputString)
+    indentElementTree(root)
+    ElementTree.dump(root)
+
+# http://effbot.org/zone/element-lib.htm#prettyprint
+def indentElementTree(elem, level=0):
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            indentElementTree(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
 if __name__ == '__main__':
     args = parseArguments()
 
@@ -33,9 +75,4 @@ if __name__ == '__main__':
         else args.input if args.input \
         else readFromStdin()
 
-    try:
-        parsed = json.loads(inputString, strict = False)
-        pretty = json.dumps(parsed, indent=4)
-        print(pretty)
-    except Exception as e:
-        print(e)
+    prettify(inputString)
