@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+export PYTHONPATH="bin"
+
+echo "Python test"
+python3 test/*.py
+
+
+echo "Bash test"
 dir=$( dirname "${BASH_SOURCE[0]}" )
 
 bats ${dir}/test_helper
