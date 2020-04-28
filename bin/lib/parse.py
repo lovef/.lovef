@@ -18,7 +18,7 @@ def main():
 
 def parseArguments():
     parser = argparse.ArgumentParser(description = helpText, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("input", nargs='?', help="Input to prettify")
+    parser.add_argument("input", nargs='?', help="Input to parse")
     parser.add_argument("-c", "--clipboard", help="Take input from clipboard",
         action="store_true")
     return parser.parse_args()
