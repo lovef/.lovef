@@ -40,17 +40,26 @@ def readFromStdin():
 def prettify(inputString):
     errors = ""
     try:
+        return prettifyJson5(inputString)
+    except Exception as e:
+        errors = errors + "Failed to parse JSON 5: " + str(e) + "\n"
+    try:
         return prettifyJson(inputString)
     except Exception as e:
-        errors = errors + "Failed to parse JSON " + str(e) + "\n"
+        errors = errors + "Failed to parse JSON: " + str(e) + "\n"
     try:
         return prettifyXml(inputString)
     except Exception as e:
-        errors = errors + "Failed to parse XML " + str(e) + "\n"
+        errors = errors + "Failed to parse XML: " + str(e) + "\n"
     print(errors, end = "")
 
+def prettifyJson5(inputString):
+    import json5
+    parsed = json5.loads(inputString)
+    return json.dumps(parsed, indent=2)
+
 def prettifyJson(inputString):
-    parsed = json.loads(inputString, strict = False)
+    parsed = json.loads(inputString)
     return json.dumps(parsed, indent=2)
 
 def prettifyXml(inputString):
