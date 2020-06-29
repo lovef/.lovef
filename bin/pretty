@@ -2,4 +2,4 @@
 
 import lib.pretty
 
-lib.pretty.main()
+print(lib.pretty.main())
