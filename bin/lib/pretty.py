@@ -11,21 +11,21 @@ helpText = """Tries to prettify input
 
 currently supports JSON, XML"""
 
-def main():
-    args = parseArguments()
+def main(args=sys.argv[1:]):
+    args = parseArguments(args)
 
     inputString = readFromClipboard() if args.clipboard \
         else args.input if args.input \
         else readFromStdin()
 
-    print(prettify(inputString))
+    return Pretty(args).prettify(inputString)
 
-def parseArguments():
+def parseArguments(args):
     parser = argparse.ArgumentParser(description = helpText, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("input", nargs='?', help="Input to prettify")
-    parser.add_argument("-c", "--clipboard", help="Take input from clipboard",
-        action="store_true")
-    return parser.parse_args()
+    parser.add_argument("-c", "--clipboard", help="Take input from clipboard", action="store_true")
+    parser.add_argument("-e", "--escape", help="Escape non-ascii characters", action="store_true")
+    return parser.parse_args(args)
 
 def readFromClipboard():
     import tkinter
@@ -37,48 +37,57 @@ def readFromStdin():
         text = text + line
     return text
 
-def prettify(inputString):
-    errors = ""
-    try:
-        return prettifyJson5(inputString)
-    except Exception as e:
-        errors = errors + "Failed to parse JSON 5: " + str(e) + "\n"
-    try:
-        return prettifyJson(inputString)
-    except Exception as e:
-        errors = errors + "Failed to parse JSON: " + str(e) + "\n"
-    try:
-        return prettifyXml(inputString)
-    except Exception as e:
-        errors = errors + "Failed to parse XML: " + str(e) + "\n"
-    print(errors, end = "")
+class Pretty:
+    args = None
 
-def prettifyJson5(inputString):
-    import json5
-    parsed = json5.loads(inputString)
-    return json.dumps(parsed, indent=2)
+    def __init__(self, args):
+        self.args = args
 
-def prettifyJson(inputString):
-    parsed = json.loads(inputString)
-    return json.dumps(parsed, indent=2)
+    def prettify(self, inputString):
+        errors = ""
+        try:
+            return self.prettifyJson5(inputString)
+        except Exception as e:
+            errors = errors + "Failed to parse JSON 5: " + str(e) + "\n"
+        try:
+            return self.prettifyJson(inputString)
+        except Exception as e:
+            errors = errors + "Failed to parse JSON: " + str(e) + "\n"
+        try:
+            return self.prettifyXml(inputString)
+        except Exception as e:
+            errors = errors + "Failed to parse XML: " + str(e) + "\n"
+        print(errors, end = "")
 
-def prettifyXml(inputString):
-    root = ElementTree.fromstring(inputString)
-    indentElementTree(root)
-    return ElementTree.tostring(root, encoding='unicode').rstrip()
+    def prettifyJson5(self, inputString):
+        import json5
+        parsed = json5.loads(inputString)
+        return self.dumps(parsed)
 
-# http://effbot.org/zone/element-lib.htm#prettyprint
-def indentElementTree(elem, level=0):
-    i = "\n" + level*"  "
-    if len(elem):
-        if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-        for elem in elem:
-            indentElementTree(elem, level+1)
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-    else:
-        if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
+    def prettifyJson(self, inputString):
+        parsed = json.loads(inputString)
+        return self.dumps(parsed)
+
+    def dumps(self, jsonString):
+        return json.dumps(jsonString, indent=2, ensure_ascii=self.args.escape)
+
+    def prettifyXml(self, inputString):
+        root = ElementTree.fromstring(inputString)
+        self.indentElementTree(root)
+        return ElementTree.tostring(root, encoding='unicode').rstrip()
+
+    # http://effbot.org/zone/element-lib.htm#prettyprint
+    def indentElementTree(self, elem, level=0):
+        i = "\n" + level*"  "
+        if len(elem):
+            if not elem.text or not elem.text.strip():
+                elem.text = i + "  "
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+            for elem in elem:
+                self.indentElementTree(elem, level+1)
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+        else:
+            if level and (not elem.tail or not elem.tail.strip()):
+                elem.tail = i
