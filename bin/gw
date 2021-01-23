@@ -27,5 +27,11 @@ if [[ $1 == "-v" || $1 == "--version" ]]; then
         echo "consult https://gradle.org/releases/ for list of available releases"
     fi
 else
+    case "$(uname -s)" in
+        MINGW*)
+            export TERM=cygwin
+            ;;
+    esac
+
     ./gradlew $*
 fi
