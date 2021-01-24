@@ -6,32 +6,46 @@ command -v ./gradlew >/dev/null 2>&1 || {
     echo "    gw-setup -h"
     exit 1
 }
+
+case "$(uname -s)" in
+    MINGW*)
+        export TERM=cygwin
+        ;;
+esac
+
 if [[ $1 == "-v" || $1 == "--version" ]]; then
     if [[ $# == 2 ]]; then
         echo "Let me update that wrapper for you ..."
         version=$2
+        printf '\33[90m' # Grey
         if [[ $version == "--latest" ]]; then
-            version=$(curl https://gradle.org/releases/ -s | \
+            url="https://gradle.org/releases/"
+            echo "lookup $url"
+            version=$(curl "$url" -s | \
                 egrep -o -m1 'services.gradle.org/distributions/gradle-[0-9.]+-bin.zip' | \
                 sed -E s/.+gradle-// | sed s/-bin.zip//)
             echo resolved version $version
         fi
+        echo "./gradlew wrapper --gradle-version $version"
+        printf '\33[0m' # End
+        ./gradlew wrapper --gradle-version $version
+        printf '\33[90m' # Grey
+        echo "Will rerun wrapper command with new wrapper"
+        printf '\33[0m' # End
         ./gradlew wrapper --gradle-version $version
         command -v dos2unix >/dev/null 2>&1 && dos2unix gradle/wrapper/gradle-wrapper.properties
     else
         ./gradlew $*
+        printf '\33[90m' # Grey
         echo "update with"
         echo "  gw -v \$(version)"
         echo "  gw -v --latest # Will atempt to resolve latest version from https://gradle.org/releases/"
+        echo "or"
+        echo "  ./gradlew wrapper --gradle-version \$(version)"
         echo
         echo "consult https://gradle.org/releases/ for list of available releases"
+        printf '\33[0m' # End
     fi
 else
-    case "$(uname -s)" in
-        MINGW*)
-            export TERM=cygwin
-            ;;
-    esac
-
     ./gradlew $*
 fi
