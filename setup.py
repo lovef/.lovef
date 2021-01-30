@@ -13,14 +13,11 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/lovef/.lovef",
     packages=setuptools.find_packages(),
-    scripts=[
-        # 'scripts/parse',
-        'scripts/uuid'
-    ],
     entry_points={
         'console_scripts': [
             'parse=lovef.parse:main',
             'pretty=lovef.pretty:main',
+            'uuid=lovef.uuid:main',
         ],
     },
     classifiers=[
