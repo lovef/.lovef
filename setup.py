@@ -11,11 +11,18 @@ setuptools.setup(
     description="A collection of utility scripts",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
-    # packages=setuptools.find_packages(),
+    url="https://github.com/lovef/.lovef",
+    packages=setuptools.find_packages(),
     scripts=[
+        # 'scripts/parse',
         'scripts/uuid'
     ],
+    entry_points={
+        'console_scripts': [
+            'parse=lovef.parse:main',
+            'pretty=lovef.pretty:main',
+        ],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
