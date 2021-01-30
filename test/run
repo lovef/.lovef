@@ -2,13 +2,7 @@
 
 set -e
 
-export PYTHONPATH="bin"
-
-for f in test/*.py
-do
-    echo "--- $f"
-    python3 "$f"
-done
+python3 setup.py test
 
 echo "Bash test"
 dir=$( dirname "${BASH_SOURCE[0]}" )

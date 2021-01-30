@@ -26,9 +26,17 @@ function help {
     echo "
 Utility for https://github.com/lovef/.lovef
 
-To setup include this in ~/.bash_profile
+To setup, include this in ~/.bash_profile
 
     source ${lovefDir}/.bash_profile
+
+And install python module
+
+    pip3 install ${lovefDir}
+
+To uninstall python module
+
+    pip3 uninstall lovef
 
 Options:
 

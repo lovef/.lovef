@@ -1,34 +1,34 @@
-import lib.pretty
+from lovef import pretty
 import unittest
 
-class TestStringMethods(unittest.TestCase):
+class Tests(unittest.TestCase):
 
     def test_pretty_json(self):
-        self.assertEqual(lib.pretty.main(['{"a":"b"}']),
+        self.assertEqual(pretty.main(['{"a":"b"}']),
             '{\n'
             '  "a": "b"\n'
             '}')
 
     def test_pretty_json_non_ascii(self):
-        self.assertEqual(lib.pretty.main(['{"a":"å"}']),
+        self.assertEqual(pretty.main(['{"a":"å"}']),
             '{\n'
             '  "a": "å"\n'
             '}')
 
     def test_pretty_json_non_ascii_escaped(self):
-        self.assertEqual(lib.pretty.main(['{"a":"å"}', '--escape']),
+        self.assertEqual(pretty.main(['{"a":"å"}', '--escape']),
             '{\n'
             '  "a": "\\u00e5"\n'
             '}')
 
     def test_pretty_json5(self):
-        self.assertEqual(lib.pretty.main(['{a:"b" /* comment */}']),
+        self.assertEqual(pretty.main(['{a:"b" /* comment */}']),
             '{\n'
             '  "a": "b"\n'
             '}')
 
     def test_pretty_xml(self):
-        self.assertEqual(lib.pretty.main(['<a><b/></a>']),
+        self.assertEqual(pretty.main(['<a><b/></a>']),
         '<a>\n'
         '  <b />\n'
         '</a>')
