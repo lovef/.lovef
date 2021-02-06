@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
-
 import json
 import xml.dom.minidom
 from xml.etree import ElementTree
 import sys
-import fileinput
 import argparse
+
+from . import io
 
 helpText = """Tries to prettify input
 
@@ -14,9 +13,9 @@ currently supports JSON, XML"""
 def main(args=sys.argv[1:]):
     args = parseArguments(args)
 
-    inputString = readFromClipboard() if args.clipboard \
+    inputString = io.readFromClipboard() if args.clipboard \
         else args.input if args.input \
-        else readFromStdin()
+        else io.readFromStdin()
 
     return Pretty(args).prettify(inputString)
 
@@ -26,16 +25,6 @@ def parseArguments(args):
     parser.add_argument("-c", "--clipboard", help="Take input from clipboard", action="store_true")
     parser.add_argument("-e", "--escape", help="Escape non-ascii characters", action="store_true")
     return parser.parse_args(args)
-
-def readFromClipboard():
-    import tkinter
-    return tkinter.Tk().clipboard_get()
-
-def readFromStdin():
-    text = ""
-    for line in fileinput.input():
-        text = text + line
-    return text
 
 class Pretty:
     args = None
