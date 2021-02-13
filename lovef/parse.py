@@ -10,7 +10,7 @@ from . import io
 
 helpText = """Tries to parse input
 
-currently supports base64"""
+currently supports seconds or milliseconds sinse epoch, JWT, base64"""
 
 
 def main():
