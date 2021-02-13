@@ -18,6 +18,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'parse=lovef.parse:main',
+            'passwd-gen=lovef.passwd:main',
             'pretty=lovef.pretty:main',
             'uuid=lovef.uuid:main',
         ],

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import secrets
 
@@ -10,6 +8,15 @@ chars = "23456789" + \
     "ABCDEFGHJKLMNPQRSTUVWXYZ" +\
     "_-+"
 charsLen = len(chars)
+
+def main():
+    args = parseArguments()
+
+    if args.clipboard:
+        length = args.length if args.length else 32
+        addToClipboard(generate(length))
+
+    printPasswordTable(args.length)
 
 def printPasswordTable(first):
     print(f'{16:16}{24:8}{32:8}{40:8}{48:8}{56:8}{64:8}')
@@ -44,12 +51,3 @@ def addToClipboard(text):
     window.destroy()
     print("Added password to your clipboard")
     input("do your thing and press enter when you are done")
-
-if __name__ == '__main__':
-    args = parseArguments()
-
-    if args.clipboard:
-        length = args.length if args.length else 32
-        addToClipboard(generate(length))
-
-    printPasswordTable(args.length)
