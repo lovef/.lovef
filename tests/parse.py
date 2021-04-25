@@ -1,6 +1,8 @@
-from lovef.parse import parse
+import lovef.parse
 import unittest
 
+def parse(*args):
+    return lovef.parse.main(args)
 
 class Tests(unittest.TestCase):
 
@@ -28,6 +30,47 @@ class Tests(unittest.TestCase):
             '  "iat": 1516239022 /* 2018-01-18 02:30:22 */\n' +
             '}')
 
+    def test_parse_json(self):
+        self.assertEqual(parse('{"a":"b"}'),
+            '{\n'
+            '  "a": "b"\n'
+            '}')
+
+    def test_parse_json_non_ascii(self):
+        self.assertEqual(parse('{"a":"å"}'),
+            '{\n'
+            '  "a": "å"\n'
+            '}')
+
+    def test_parse_json_non_ascii_escaped(self):
+        self.assertEqual(parse('{"a":"å"}', '--escape'),
+            '{\n'
+            '  "a": "\\u00e5"\n'
+            '}')
+
+    def test_parse_json5(self):
+        self.assertEqual(parse('{a:"b" /* comment */}'),
+            '{\n'
+            '  "a": "b"\n'
+            '}')
+
+    def test_parse_json_query_string(self):
+        self.assertEqual(parse('{"a":"b"}', '-q', 'a'), 'b')
+
+    def test_parse_json_query_bool(self):
+        self.assertEqual(parse('{"a":false}', '-q', 'a'), 'false')
+
+    def test_parse_json_query_float(self):
+        self.assertEqual(parse('{"a":1.0}', '-q', 'a'), '1.0')
+
+    def test_parse_json_query_float(self):
+        self.assertEqual(parse('{"a":1.0}', '-q', 'a'), '1.0')
+
+    def test_parse_json_list_query(self):
+        self.assertEqual(parse('[1,"a"]', '-q', '1'), 'a')
+
+    def test_parse_json_queries(self):
+        self.assertEqual(parse('{"a":[0, {}]}', '-q', 'a', '1'), '{}')
 
 if __name__ == '__main__':
     unittest.main()
