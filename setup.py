@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="lovef",
-    version="0.0.1",
+    version="0.0.2",
     author="lovef",
     author_email="lovef.code@gmail.com",
     description="A collection of utility scripts",
@@ -17,7 +17,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     entry_points={
         'console_scripts': [
-            'parse=lovef.parse:main',
+            'parse=lovef.parse:script',
             'passwd-gen=lovef.passwd:main',
             'pretty=lovef.pretty:main',
             'uuid=lovef.uuid:main',
