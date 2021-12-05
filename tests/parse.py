@@ -54,6 +54,26 @@ class Tests(unittest.TestCase):
             '  "a": "b"\n'
             '}')
 
+    def test_parse_json_with_nested_json_string(self):
+        self.assertEqual(parse('{"a":"{\\"a\\":\\"b\\"}"}'),
+            '{\n'
+            '  "a": "{\\"a\\":\\"b\\"}"\n'
+            '}')
+
+    def test_parse_json_recursive_string(self):
+        self.assertEqual(parse('{"a":"{\\"a\\":\\"b\\"}"}', '--recursive'),
+            '{\n'
+            '  "a": {\n'
+            '    "a": "b"\n'
+            '  }\n'
+            '}')
+
+    def test_parse_json_recursive_string_with_error(self):
+        self.assertEqual(parse('{"a": "{a\\": \\"b\\"}"}', '--recursive'),
+            '{\n'
+            '  "a": "{a\\": \\"b\\"}"\n'
+            '}')
+
     def test_parse_json_query_string(self):
         self.assertEqual(parse('{"a":"b"}', '-q', 'a'), 'b')
 

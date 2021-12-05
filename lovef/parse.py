@@ -10,7 +10,39 @@ from . import io
 
 helpText = """Tries to parse input
 
-currently supports seconds or milliseconds since epoch, JSON, JWT, base64"""
+currently supports seconds or milliseconds since epoch, JSON, JWT, base64
+
+examples:
+
+  parse '{"a":"å"}'
+  {
+    "a": "å"
+  }
+
+  parse '{"a":"å"}' -e
+  {
+    "a": "\\u00e5"
+  }
+
+  parse '{"a":"{\\"a\\":\\"b\\"}"}'
+  {
+    "a": "{\\"a\\":\\"b\\"}"
+  }
+
+  parse '{"a":"{\\"a\\":\\"b\\"}"}' -r
+  {
+    "a": {
+      "a": "b"
+    }
+  }
+
+  parse '{"a":"{\"a\":\"b\"}"}' -q a
+  {"a":"b"}
+
+  parse '{"a":"{\"a\":\"b\"}"}' -q a | parse
+  {
+    "a": "b"
+  }"""
 
 
 def script():
@@ -31,6 +63,7 @@ def parseArguments(args):
     parser.add_argument("input", nargs='?', help="Input to parse")
     parser.add_argument("-c", "--clipboard", help="Take input from clipboard", action="store_true")
     parser.add_argument("-e", "--escape", help="Escape non-ascii characters", action="store_true")
+    parser.add_argument("-r", "--recursive", help="Recursively parse json strings in JSON object", action="store_true")
     parser.add_argument("-q", "--query", nargs='*', help="Query output")
     return parser.parse_args(args)
 
@@ -106,4 +139,14 @@ class Parser:
                 obj = obj[query]
         if type(obj) is str:
             return obj
+        if self.args.recursive:
+            for key in obj:
+                try:
+                    value = obj[key]
+                    if type(value) == str:
+                        parsed = json.loads(value)
+                        if type(parsed) == dict:
+                            obj[key] = parsed
+                except:
+                    None
         return json.dumps(obj, indent=2, ensure_ascii=self.args.escape)
